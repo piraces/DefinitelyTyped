@@ -1,23 +1,94 @@
-import { Vector2 } from './../math/Vector2';
-import { Matrix3 } from './../math/Matrix3';
-import { Source } from './Source';
-import { EventDispatcher } from './../core/EventDispatcher';
 import {
+    AnyMapping,
+    AnyPixelFormat,
+    ColorSpace,
+    MagnificationTextureFilter,
     Mapping,
-    Wrapping,
+    MinificationTextureFilter,
     PixelFormat,
     PixelFormatGPU,
     TextureDataType,
-    TextureEncoding,
-    MagnificationTextureFilter,
-    MinificationTextureFilter,
-    AnyPixelFormat,
-    AnyMapping,
-} from '../constants';
+    Wrapping,
+} from "../constants.js";
+import { EventDispatcher } from "../core/EventDispatcher.js";
+import { RenderTarget } from "../core/RenderTarget.js";
+import { Matrix3 } from "../math/Matrix3.js";
+import { Vector2 } from "../math/Vector2.js";
+import { CompressedTextureMipmap } from "./CompressedTexture.js";
+import { CubeTexture } from "./CubeTexture.js";
+import { TextureSource } from "./TextureSource.js";
+
+// NOTE: DOM upload fields are not implemented where parameters are accepted.
+export interface TextureParameters {
+    mapping?: AnyMapping | undefined;
+    // image?: TexImageSource | OffscreenCanvas | undefined;
+    // channel?: number | undefined;
+
+    wrapS?: Wrapping | undefined;
+    wrapT?: Wrapping | undefined;
+    wrapR?: Wrapping | undefined;
+
+    format?: PixelFormat | undefined;
+    internalFormat?: PixelFormatGPU | null | undefined;
+    type?: TextureDataType | undefined;
+    colorSpace?: ColorSpace | undefined;
+
+    magFilter?: MagnificationTextureFilter | undefined;
+    minFilter?: MinificationTextureFilter | undefined;
+    anisotropy?: number | undefined;
+
+    flipY?: boolean | undefined;
+
+    generateMipmaps?: boolean | undefined;
+    mipmapsAutoUpdate?: boolean | undefined;
+    // premultiplyAlpha?: boolean | undefined;
+    // unpackAlignment?: number | undefined;
+}
+
+export interface TextureJSON {
+    metadata: { version: number; type: string; generator: string };
+
+    uuid: string;
+    name: string;
+
+    image: string;
+
+    mapping: AnyMapping;
+    channel: number;
+
+    repeat: [x: number, y: number];
+    offset: [x: number, y: number];
+    center: [x: number, y: number];
+    rotation: number;
+
+    wrap: [wrapS: number, wrapT: number];
+
+    format: AnyPixelFormat;
+    internalFormat: PixelFormatGPU | null;
+    type: TextureDataType;
+    colorSpace: string;
+
+    minFilter: MinificationTextureFilter;
+    magFilter: MagnificationTextureFilter;
+    anisotropy: number;
+
+    flipY: boolean;
+
+    generateMipmaps: boolean;
+    mipmapsAutoUpdate: boolean;
+    premultiplyAlpha: boolean;
+    unpackAlignment: number;
+
+    userData?: Record<string, unknown>;
+}
 
 /** Shim for OffscreenCanvas. */
-// tslint:disable-next-line:no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface OffscreenCanvas extends EventTarget {}
+
+export interface TextureEventMap {
+    dispose: {};
+}
 
 /**
  * Create a {@link Texture} to apply to a surface or as a reflection or refraction map.
@@ -37,7 +108,9 @@ export interface OffscreenCanvas extends EventTarget {}
  * @see {@link https://threejs.org/docs/index.html#api/en/textures/Texture | Official Documentation}
  * @see {@link https://github.com/mrdoob/three.js/blob/master/src/Textures/Texture.js | Source}
  */
-export class Texture extends EventDispatcher {
+export class Texture<TImage = unknown, TEventMap extends TextureEventMap = TextureEventMap>
+    extends EventDispatcher<TEventMap>
+{
     /**
      * This creates a new {@link THREE.Texture | Texture} object.
      * @param image See {@link Texture.image | .image}. Default {@link THREE.Texture.DEFAULT_IMAGE}
@@ -49,10 +122,10 @@ export class Texture extends EventDispatcher {
      * @param format See {@link Texture.format | .format}. Default {@link THREE.RGBAFormat}
      * @param type See {@link Texture.type | .type}. Default {@link THREE.UnsignedByteType}
      * @param anisotropy See {@link Texture.anisotropy | .anisotropy}. Default {@link THREE.Texture.DEFAULT_ANISOTROPY}
-     * @param encoding See {@link Texture.encoding | .encoding}. Default {@link THREE.LinearEncoding}
+     * @param colorSpace See {@link Texture.colorSpace | .colorSpace}. Default {@link THREE.NoColorSpace}
      */
     constructor(
-        image?: TexImageSource | OffscreenCanvas,
+        image?: TImage,
         mapping?: Mapping,
         wrapS?: Wrapping,
         wrapT?: Wrapping,
@@ -61,7 +134,22 @@ export class Texture extends EventDispatcher {
         format?: PixelFormat,
         type?: TextureDataType,
         anisotropy?: number,
-        encoding?: TextureEncoding,
+        colorSpace?: ColorSpace,
+    );
+
+    /**
+     * @deprecated
+     */
+    constructor(
+        image: TImage,
+        mapping: Mapping,
+        wrapS: Wrapping,
+        wrapT: Wrapping,
+        magFilter: MagnificationTextureFilter,
+        minFilter: MinificationTextureFilter,
+        format: PixelFormat,
+        type: TextureDataType,
+        anisotropy: number,
     );
 
     /**
@@ -96,7 +184,22 @@ export class Texture extends EventDispatcher {
      * This is often useful in context of spritesheets where multiple textures render the same data
      * but with different {@link Texture} transformations.
      */
-    source: Source;
+    source: TextureSource<TImage>;
+
+    /**
+     * The width of the texture in pixels.
+     */
+    get width(): number;
+
+    /**
+     * The height of the texture in pixels.
+     */
+    get height(): number;
+
+    /**
+     * The depth of the texture in pixels.
+     */
+    get depth(): number;
 
     /**
      * An image object, typically created using the {@link THREE.TextureLoader.load | TextureLoader.load()} method.
@@ -105,14 +208,14 @@ export class Texture extends EventDispatcher {
      * for your {@link Texture} image and continuously update this {@link Texture}
      * as long as video is playing - the {@link THREE.VideoTexture | VideoTexture} class handles this automatically.
      */
-    get image(): any;
-    set image(data: any);
+    get image(): TImage;
+    set image(data: TImage);
 
     /**
      * Array of user-specified mipmaps
      * @defaultValue `[]`
      */
-    mipmaps: any[]; // ImageData[] for 2D textures and CubeTexture[] for cube textures;
+    mipmaps: CompressedTextureMipmap[] | CubeTexture[] | HTMLCanvasElement[];
 
     /**
      * How the image is applied to the object.
@@ -122,6 +225,12 @@ export class Texture extends EventDispatcher {
      * @defaultValue _value of_ {@link THREE.Texture.DEFAULT_MAPPING}
      */
     mapping: AnyMapping;
+
+    /**
+     * Lets you select the uv attribute to map the texture to. `0` for `uv`, `1` for `uv1`, `2` for `uv2` and `3` for
+     * `uv3`.
+     */
+    channel: number;
 
     /**
      * This defines how the {@link Texture} is wrapped *horizontally* and corresponds to **U** in UV mapping.
@@ -178,8 +287,8 @@ export class Texture extends EventDispatcher {
 
     /**
      * These define how elements of a 2D texture, or texels, are read by shaders.
-     * @remarks All {@link Texture} types except {@link THREE.DeepTexture} and {@link THREE.CompressedPixelFormat} expect the _values_ be {@link THREE.PixelFormat}
-     * @remarks {@link DeepTexture} expect the _values_ be {@link THREE.CubeTextureMapping}
+     * @remarks All {@link Texture} types except {@link THREE.DepthTexture} and {@link THREE.CompressedPixelFormat} expect the _values_ be {@link THREE.PixelFormat}
+     * @remarks {@link DepthTexture} expect the _values_ be {@link THREE.CubeTextureMapping}
      * @remarks {@link CompressedPixelFormat} expect the _values_ be {@link THREE.CubeTextureMapping}
      * @see {@link https://threejs.org/docs/index.html#api/en/constants/Textures | Texture Constants}
      * @see {@link THREE.PixelFormat}
@@ -232,26 +341,6 @@ export class Texture extends EventDispatcher {
     /**
      * How much a single repetition of the texture is offset from the beginning, in each direction **U** and **V**.
      * @remarks Typical range is `0.0` to `1.0`.
-     * @remarks
-     * The below texture types share the `first` uv channel in the engine.
-     * The offset (and repeat) setting is evaluated according to the following priorities and then shared by those textures:
-     *  - color map
-     *  - specular map
-     *  - displacement map
-     *  - normal map
-     *  - bump map
-     *  - roughness map
-     *  - metalness map
-     *  - alpha map
-     *  - emissive map
-     *  - clearcoat map
-     *  - clearcoat normal map
-     *  - clearcoat roughnessMap map
-     * @remarks
-     * The below {@link Texture} types share the `second` uv channel in the engine.
-     * The offset (and repeat) setting is evaluated according to the following priorities and then shared by those textures:
-     *  - ao map
-     *  - light map
      * @defaultValue `new THREE.Vector2(0, 0)`
      */
     offset: Vector2;
@@ -261,8 +350,6 @@ export class Texture extends EventDispatcher {
      * @remarks
      * If repeat is set greater than `1` in either direction, the corresponding *Wrap* parameter should
      * also be set to {@link THREE.RepeatWrapping} or {@link THREE.MirroredRepeatWrapping} to achieve the desired tiling effect.
-     * @remarks
-     * Setting different repeat values for textures is restricted in the same way like {@link .offset | .offset}.
      * @see {@link wrapS}
      * @see {@link wrapT}
      * @defaultValue `new THREE.Vector2( 1, 1 )`
@@ -289,6 +376,14 @@ export class Texture extends EventDispatcher {
      * @defaultValue true
      */
     generateMipmaps: boolean;
+
+    /**
+     * Whether the renderer regenerates the mipmaps automatically whenever the texture is uploaded, rendered to or
+     * copied into. Set this to `false` to pause the regeneration and write the mip levels yourself. Requires
+     * {@link Texture#generateMipmaps}.
+     * @defaultValue true
+     */
+    mipmapsAutoUpdate: boolean;
 
     /**
      * If set to `true`, the alpha channel, if present, is multiplied into the color channels when the texture is uploaded to the GPU.
@@ -324,16 +419,15 @@ export class Texture extends EventDispatcher {
     unpackAlignment: number; // TODO Fix typing to only allow the expected values.
 
     /**
-     * The {@link Textures | {@link Texture} constants} page for details of other formats.
+     * The {@link Textures | {@link Texture} constants} page for details of other color spaces.
      * @remarks
-     * Values of {@link encoding} !== {@link THREE.LinearEncoding} are only supported on _map_, _envMap_ and _emissiveMap_.
-     * @remarks
-     * Note that if this value is changed on a texture after the material has been used, it is necessary to trigger a {@link THREE.Material.needsUpdate} for this value to be realized in the shader.
+     * Textures containing color data should be annotated with {@link SRGBColorSpace THREE.SRGBColorSpace} or
+     * {@link LinearSRGBColorSpace THREE.LinearSRGBColorSpace}.
      * @see {@link https://threejs.org/docs/index.html#api/en/constants/Textures | Texture Constants}
      * @see {@link THREE.TextureDataType}
-     * @defaultValue {@link THREE.LinearEncoding}
+     * @defaultValue {@link THREE.NoColorSpace}
      */
-    encoding: TextureEncoding;
+    colorSpace: string;
 
     /**
      * Indicates whether a texture belongs to a render target or not
@@ -342,18 +436,24 @@ export class Texture extends EventDispatcher {
     isRenderTargetTexture: boolean;
 
     /**
-     * Indicates whether this texture should be processed by {@link THREE.PMREMGenerator} or not.
-     * @remarks Only relevant for render target textures.
-     * @defaultValue `false`
+     * Indicates if a texture should be handled like a texture array.
+     *
+     * @default false
      */
-    needsPMREMUpdate: boolean;
+    isArrayTexture: boolean;
 
     /**
      * An object that can be used to store custom data about the texture.
      * @remarks It should not hold references to functions as these will not be cloned.
      * @defaultValue `{}`
      */
-    userData: any;
+    userData: Record<string, any>;
+
+    /**
+     * This can be used to only update a subregion or specific rows of the texture (for example, just the
+     * first 3 rows). Use the `addUpdateRange()` function to add ranges to this array.
+     */
+    updateRanges: Array<{ start: number; count: number }>;
 
     /**
      * This starts at `0` and counts how many times {@link needsUpdate | .needsUpdate} is set to `true`.
@@ -363,9 +463,37 @@ export class Texture extends EventDispatcher {
     version: number;
 
     /**
+     * Indicates whether this texture should be processed by PMREMGenerator or not (only relevant for render target
+     * textures)
+     */
+    pmremVersion: number;
+
+    /**
+     * Indicates whether this texture is a prefiltered cube environment map generated by {@link PMREMGenerator}.
+     * @defaultValue `false`
+     */
+    isPMREMTexture: boolean;
+
+    /**
+     * Whether the texture should use one of the 16 bit integer formats which are normalized
+     * to [0, 1] or [-1, 1] (depending on signed/unsigned) when sampled.
+     *
+     * @type {boolean}
+     * @default false
+     */
+    normalized: boolean;
+
+    /**
      * Set this to `true` to trigger an update next time the texture is used. Particularly important for setting the wrap mode.
      */
     set needsUpdate(value: boolean);
+
+    /**
+     * Indicates whether this texture should be processed by {@link THREE.PMREMGenerator} or not.
+     * @remarks Only relevant for render target textures.
+     * @defaultValue `false`
+     */
+    set needsPMREMUpdate(value: boolean);
 
     /**
      * The Global default value for {@link anisotropy | .anisotropy}.
@@ -377,7 +505,7 @@ export class Texture extends EventDispatcher {
      * The Global default value for {@link Texture.image | .image}.
      * @defaultValue `null`.
      */
-    static DEFAULT_IMAGE: any;
+    static DEFAULT_IMAGE: null;
 
     /**
      * The Global default value for {@link mapping | .mapping}.
@@ -385,10 +513,12 @@ export class Texture extends EventDispatcher {
      */
     static DEFAULT_MAPPING: Mapping;
 
+    renderTarget: RenderTarget | null;
+
     /**
      * A callback function, called when the texture is updated _(e.g., when needsUpdate has been set to true and then the texture is used)_.
      */
-    onUpdate: () => void;
+    onUpdate: ((texture: Texture) => void) | null;
 
     /**
      * Transform the **UV** based on the value of this texture's
@@ -411,25 +541,44 @@ export class Texture extends EventDispatcher {
     updateMatrix(): void;
 
     /**
-     * Make copy of the texture
-     * @remarks Note this is not a **"deep copy"**, the image is shared
-     * @remarks
-     * Besides, cloning a texture does not automatically mark it for a texture upload
-     * You have to set {@link needsUpdate | .needsUpdate} to `true` as soon as it's image property (the data source) is fully loaded or ready.
+     * Adds a range of data in the data texture to be updated on the GPU.
+     *
+     * @param {number} start - Position at which to start update.
+     * @param {number} count - The number of components to update.
+     */
+    addUpdateRange(start: number, count: number): void;
+
+    /**
+     * Clears the update ranges.
+     */
+    clearUpdateRanges(): void;
+
+    /**
+     * Make copy of the texture. Note this is not a "deep copy", the image is shared. Cloning the texture automatically
+     * marks it for texture upload.
      */
     clone(): this;
 
-    copy(source: Texture): this;
+    copy(source: Texture<TImage>): this;
+
+    /**
+     * Sets this texture's properties based on `values`.
+     * @param values - A container with texture parameters.
+     */
+    setValues(values: TextureParameters): void;
 
     /**
      * Convert the texture to three.js {@link https://github.com/mrdoob/three.js/wiki/JSON-Object-Scene-format-4 | JSON Object/Scene format}.
      * @param meta Optional object containing metadata.
      */
-    toJSON(meta?: string | {}): {};
+    toJSON(meta?: string | {}): TextureJSON;
 
     /**
      * Frees the GPU-related resources allocated by this instance
      * @remarks Call this method whenever this instance is no longer used in your app.
+     * @remarks Textures that belong to a render target are managed by the render target. Calling this method on such a
+     * texture only dispatches the dispose event but does not free any GPU resources. Use {@link RenderTarget.dispose}
+     * instead.
      */
     dispose(): void;
 }

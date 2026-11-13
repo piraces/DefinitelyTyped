@@ -1,18 +1,14 @@
+//////////////////////////////////////////////////////
+// BEWARE: DO NOT EDIT MANUALLY! Changes will be lost!
+//////////////////////////////////////////////////////
+
 /**
  * Namespace: browser.declarativeNetRequest
- * Generated from Mozilla sources. Do not manually edit!
- *
- * Use the declarativeNetRequest API to block or modify network requests by specifying declarative rules.
- * Permissions: "declarativeNetRequest", "declarativeNetRequestWithHostAccess"
- *
- * Comments found in source JSON schema files:
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 export namespace DeclarativeNetRequest {
     /**
      * How the requested resource will be used. Comparable to the webRequest.ResourceType type.
+     * object_subrequest is unsupported.
      */
     type ResourceType =
         | "main_frame"
@@ -34,7 +30,13 @@ export namespace DeclarativeNetRequest {
         | "imageset"
         | "web_manifest"
         | "speculative"
+        | "json"
         | "other";
+
+    /**
+     * Describes the reason why a given regular expression isn't supported.
+     */
+    type UnsupportedRegexReason = "syntaxError" | "memoryLimitExceeded";
 
     interface MatchedRule {
         /**
@@ -138,6 +140,14 @@ export namespace DeclarativeNetRequest {
         action: RuleActionType;
     }
 
+    interface GetRulesFilter {
+        /**
+         * If specified, only rules with matching IDs are included.
+         * Optional.
+         */
+        ruleIds?: number[];
+    }
+
     interface UpdateDynamicRulesOptionsType {
         /**
          * IDs of the rules to remove. Any invalid IDs will be ignored.
@@ -176,6 +186,57 @@ export namespace DeclarativeNetRequest {
          * Optional.
          */
         enableRulesetIds?: string[];
+    }
+
+    interface UpdateStaticRulesOptionsType {
+        rulesetId: string;
+
+        /**
+         * Optional.
+         */
+        disableRuleIds?: number[];
+
+        /**
+         * Optional.
+         */
+        enableRuleIds?: number[];
+    }
+
+    interface GetDisabledRuleIdsOptionsType {
+        rulesetId: string;
+    }
+
+    interface IsRegexSupportedRegexOptionsType {
+        /**
+         * The regular expresson to check.
+         */
+        regex: string;
+
+        /**
+         * Whether the 'regex' specified is case sensitive.
+         * Optional.
+         */
+        isCaseSensitive?: boolean;
+
+        /**
+         * Whether the 'regex' specified requires capturing. Capturing is only required for redirect rules which specify a
+         * 'regexSubstition' action.
+         * Optional.
+         */
+        requireCapturing?: boolean;
+    }
+
+    interface IsRegexSupportedCallbackResultType {
+        /**
+         * Whether the given regex is supported
+         */
+        isSupported: boolean;
+
+        /**
+         * Specifies the reason why the regular expression is not supported. Only provided if 'isSupported' is false.
+         * Optional.
+         */
+        reason?: UnsupportedRegexReason;
     }
 
     /**
@@ -285,7 +346,7 @@ export namespace DeclarativeNetRequest {
         regexFilter?: string;
 
         /**
-         * Whether 'urlFilter' or 'regexFilter' is case-sensitive. Defaults to true.
+         * Whether 'urlFilter' or 'regexFilter' is case-sensitive.
          * Optional.
          */
         isUrlFilterCaseSensitive?: boolean;
@@ -394,7 +455,9 @@ export namespace DeclarativeNetRequest {
         url?: string;
 
         /**
-         * TODO with regexFilter + Substitution pattern for rules which specify a 'regexFilter'.
+         * Substitution pattern for rules which specify a 'regexFilter'. The first match of regexFilter within the url will be
+         * replaced with this pattern. Within regexSubstitution, backslash-escaped digits (\1 to \9)
+         * can be used to insert the corresponding capture groups. \0 refers to the entire matching text.
          * Optional.
          */
         regexSubstitution?: string;
@@ -467,7 +530,6 @@ export namespace DeclarativeNetRequest {
          * removeRuleIds are first removed, and then the rules given in options.addRules are added.
          * These rules are persisted across browser sessions and extension updates.
          *
-         * @param options
          * @returns Called when the dynamic rules have been updated
          */
         updateDynamicRules(options: UpdateDynamicRulesOptionsType): Promise<void>;
@@ -477,7 +539,6 @@ export namespace DeclarativeNetRequest {
          * removeRuleIds are first removed, and then the rules given in options.addRules are added.
          * These rules are not persisted across sessions and are backed in memory.
          *
-         * @param options
          * @returns Called when the session rules have been updated
          */
         updateSessionRules(options: UpdateSessionRulesOptionsType): Promise<void>;
@@ -488,11 +549,15 @@ export namespace DeclarativeNetRequest {
         getEnabledRulesets(): Promise<string[]>;
 
         /**
-         * Returns the ids for the current set of enabled static rulesets.
-         *
-         * @param updateRulesetOptions
+         * Modifies the static rulesets enabled/disabled state.
          */
         updateEnabledRulesets(updateRulesetOptions: UpdateEnabledRulesetsUpdateRulesetOptionsType): Promise<void>;
+
+        /**
+         * Modified individual static rules enabled/disabled state. Changes to rules belonging to a disabled ruleset will take
+         * effect when the ruleset becomes enabled.
+         */
+        updateStaticRules(options: UpdateStaticRulesOptionsType): Promise<void>;
 
         /**
          * Returns the remaining number of static rules an extension can enable
@@ -500,14 +565,28 @@ export namespace DeclarativeNetRequest {
         getAvailableStaticRuleCount(): Promise<number>;
 
         /**
-         * Returns the current set of dynamic rules for the extension.
+         * Returns the list of individual disabled static rules from a given static ruleset id.
          */
-        getDynamicRules(): Promise<Rule[]>;
+        getDisabledRuleIds(options: GetDisabledRuleIdsOptionsType): Promise<number[]>;
+
+        /**
+         * Returns the current set of dynamic rules for the extension.
+         *
+         * @param filter Optional. An object to filter the set of dynamic rules for the extension.
+         */
+        getDynamicRules(filter?: GetRulesFilter): Promise<Rule[]>;
 
         /**
          * Returns the current set of session scoped rules for the extension.
+         *
+         * @param filter Optional. An object to filter the set of session scoped rules for the extension.
          */
-        getSessionRules(): Promise<Rule[]>;
+        getSessionRules(filter?: GetRulesFilter): Promise<Rule[]>;
+
+        /**
+         * Checks if the given regular expression will be supported as a 'regexFilter' rule condition.
+         */
+        isRegexSupported(regexOptions: IsRegexSupportedRegexOptionsType): Promise<IsRegexSupportedCallbackResultType>;
 
         /**
          * Checks if any of the extension's declarativeNetRequest rules would match a hypothetical request.
@@ -518,7 +597,60 @@ export namespace DeclarativeNetRequest {
          */
         testMatchOutcome(
             request: TestMatchOutcomeRequestType,
-            options?: TestMatchOutcomeOptionsType
+            options?: TestMatchOutcomeOptionsType,
         ): Promise<TestMatchOutcomeCallbackResultType>;
+
+        /**
+         * Ruleset ID for the dynamic rules added by the extension.
+         */
+        DYNAMIC_RULESET_ID: "_dynamic";
+
+        /**
+         * The minimum number of static rules guaranteed to an extension across its enabled static rulesets.
+         * Any rules above this limit will count towards the global static rule limit.
+         */
+        GUARANTEED_MINIMUM_STATIC_RULES: number;
+
+        /**
+         * The maximum number of static Rulesets an extension can specify as part of the rule_resources manifest key.
+         */
+        MAX_NUMBER_OF_STATIC_RULESETS: number;
+
+        /**
+         * The maximum number of static rules that can be disabled on each static ruleset.
+         */
+        MAX_NUMBER_OF_DISABLED_STATIC_RULES: number;
+
+        /**
+         * The maximum number of static Rulesets an extension can enable at any one time.
+         */
+        MAX_NUMBER_OF_ENABLED_STATIC_RULESETS: number;
+
+        /**
+         * Deprecated property returning the maximum number of dynamic and session rules an extension can add,
+         * replaced by MAX_NUMBER_OF_DYNAMIC_RULES/MAX_NUMBER_OF_SESSION_RULES.
+         */
+        MAX_NUMBER_OF_DYNAMIC_AND_SESSION_RULES: number;
+
+        /**
+         * The maximum number of dynamic session rules an extension can add.
+         */
+        MAX_NUMBER_OF_DYNAMIC_RULES: number;
+
+        /**
+         * The maximum number of dynamic session rules an extension can add.
+         */
+        MAX_NUMBER_OF_SESSION_RULES: number;
+
+        /**
+         * The maximum number of regular expression rules that an extension can add. This limit is evaluated separately for the set
+         * of session rules, dynamic rules and those specified in the rule_resources file.
+         */
+        MAX_NUMBER_OF_REGEX_RULES: number;
+
+        /**
+         * Ruleset ID for the session-scoped rules added by the extension.
+         */
+        SESSION_RULESET_ID: "_session";
     }
 }

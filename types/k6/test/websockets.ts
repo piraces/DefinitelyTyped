@@ -1,5 +1,9 @@
-import { WebSocket, EventName, CompressionAlgorithm } from 'k6/experimental/websockets';
-import { CookieJar } from 'k6/http';
+import { CookieJar } from "k6/http";
+import { Blob, WebSocket } from "k6/websockets";
+
+let str: string;
+let ab: ArrayBuffer;
+let b: Blob;
 
 //
 // WebSocket constructor
@@ -8,31 +12,53 @@ import { CookieJar } from 'k6/http';
 // @ts-expect-error
 new WebSocket();
 
-new WebSocket('wss://test-api.k6.io/ws/crocochat/1', null, {});
-new WebSocket('wss://test-api.k6.io/ws/crocochat/1', null, {
-    headers: { 'User-Agent': 'ITS' },
-    tags: { user: 'zbt' }
+new WebSocket("wss://test-api.k6.io/ws/crocochat/1", null, {});
+new WebSocket("wss://test-api.k6.io/ws/crocochat/1", null, {
+    headers: { "User-Agent": "ITS" },
+    tags: { user: "zbt" },
 });
-new WebSocket('wss://test-api.k6.io/ws/crocochat/1', null, {
-    compression: CompressionAlgorithm.Deflate
+new WebSocket("wss://test-api.k6.io/ws/crocochat/1", null, {
+    compression: "deflate",
 });
-new WebSocket('wss://test-api.k6.io/ws/crocochat/1', null, {
-    jar: new CookieJar()
+new WebSocket("wss://test-api.k6.io/ws/crocochat/1", null, {
+    jar: new CookieJar(),
 });
-new WebSocket('wss://test-api.k6.io/ws/crocochat/1', null, {
+new WebSocket("wss://test-api.k6.io/ws/crocochat/1", null, {
     // @ts-expect-error
-    lorem: 'ipsum'
+    lorem: "ipsum",
 });
-new WebSocket('wss://test-api.k6.io/ws/crocochat/1', null, {
+new WebSocket("wss://test-api.k6.io/ws/crocochat/1", null, {
     // @ts-expect-error
-    compression: "lorem"
+    compression: "lorem",
 });
-new WebSocket('wss://test-api.k6.io/ws/crocochat/1', null, {
+new WebSocket("wss://test-api.k6.io/ws/crocochat/1", null, {
     // @ts-expect-error
     compression: null,
 });
 
-const ws = new WebSocket('wss://test-api.k6.io/ws/crocochat/1');
+new Blob();
+new Blob(["something"]);
+new Blob([new ArrayBuffer(2)]);
+new Blob([new Uint8Array(new ArrayBuffer(2))]);
+new Blob([new Uint8Array(new ArrayBuffer(2)), "something else"]);
+// @ts-expect-error
+new Blob([3]);
+
+new Blob(["something"], { type: "test" });
+
+const blob = new Blob(["something"]);
+
+(async () => { // this is required as top-level-await requires a lot more changes
+    await blob.text(); // $ExpectType string
+    await blob.arrayBuffer(); // $ExpectType ArrayBuffer
+    await blob.bytes(); // $ExpectType Uint8Array || Uint8Array<ArrayBuffer>
+    blob.stream(); // $ExpectType ReadableStream
+    blob.slice(10, 2); // $ExpectType Blob
+    // @ts-expect-error
+    blob.slice(10, 2, "string");
+});
+
+const ws = new WebSocket("wss://test-api.k6.io/ws/crocochat/1");
 
 //
 // WebSocket.send
@@ -42,9 +68,11 @@ const ws = new WebSocket('wss://test-api.k6.io/ws/crocochat/1');
 ws.send();
 // @ts-expect-error
 ws.send(5);
-ws.send('super secret information'); // $ExpectType void
+ws.send("super secret information"); // $ExpectType void
 // @ts-expect-error
-ws.send('super secret information', 5);
+ws.send("super secret information", 5);
+
+ws.send(blob);
 
 //
 // WebSocket.addEventListener
@@ -53,10 +81,10 @@ ws.send('super secret information', 5);
 // @ts-expect-error
 ws.addEventListener();
 // @ts-expect-error
-ws.addEventListener('open');
+ws.addEventListener("open");
 // @ts-expect-error
-ws.addEventListener('open', 5);
-ws.addEventListener(EventName.Open, () => {}); // $ExpectType void
+ws.addEventListener("open", 5);
+ws.addEventListener("open", () => {}); // $ExpectType void
 
 //
 // WebSocket.close
@@ -64,7 +92,7 @@ ws.addEventListener(EventName.Open, () => {}); // $ExpectType void
 
 ws.close(); // $ExpectType void
 // @ts-expect-error
-ws.close('not-a-close-code');
+ws.close("not-a-close-code");
 ws.close(7); // $ExpectType void
 // @ts-expect-error
 ws.close(7, 5);
@@ -82,16 +110,16 @@ ws.ping(5);
 //
 
 // @ts-expect-error
-ws.onmessage = 'lorem';
+ws.onmessage = "lorem";
 ws.onmessage = () => {};
-ws.onmessage = (event) => {};
+ws.onmessage = event => {};
 
 //
 // WebSocket.onopen
 //
 
 // @ts-expect-error
-ws.onopen = 'lorem';
+ws.onopen = "lorem";
 ws.onopen = () => {};
 
 //
@@ -99,7 +127,7 @@ ws.onopen = () => {};
 //
 
 // @ts-expect-error
-ws.onclose = 'lorem';
+ws.onclose = "lorem";
 ws.onclose = () => {};
 
 //
@@ -107,16 +135,16 @@ ws.onclose = () => {};
 //
 
 // @ts-expect-error
-ws.onerror = 'lorem';
+ws.onerror = "lorem";
 ws.onerror = () => {};
-ws.onerror = (event) => {};
+ws.onerror = event => {};
 
 //
 // WebSocket.onping
 //
 
 // @ts-expect-error
-ws.onping = 'lorem';
+ws.onping = "lorem";
 ws.onping = () => {};
 
 //
@@ -124,5 +152,19 @@ ws.onping = () => {};
 //
 
 // @ts-expect-error
-ws.onpong = 'lorem';
+ws.onpong = "lorem";
 ws.onpong = () => {};
+
+//
+// WebSocket ready state constants
+//
+
+WebSocket.CONNECTING; // $ExpectType 0
+WebSocket.OPEN; // $ExpectType 1
+WebSocket.CLOSING; // $ExpectType 2
+WebSocket.CLOSED; // $ExpectType 3
+
+ws.CONNECTING; // $ExpectType 0
+ws.OPEN; // $ExpectType 1
+ws.CLOSING; // $ExpectType 2
+ws.CLOSED; // $ExpectType 3

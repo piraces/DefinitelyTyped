@@ -1,9 +1,17 @@
-import { Material } from './../materials/Material';
-import { Raycaster } from './../core/Raycaster';
-import { Object3D } from './../core/Object3D';
-import { BufferGeometry } from '../core/BufferGeometry';
-import { Intersection } from '../core/Raycaster';
-import { Vector3 } from '../math/Vector3';
+import { BufferGeometry } from "../core/BufferGeometry.js";
+import { JSONMeta, Object3D, Object3DEventMap, Object3DJSON, Object3DJSONObject } from "../core/Object3D.js";
+import { Material } from "../materials/Material.js";
+import { Frustum } from "../math/Frustum.js";
+import { FrustumArray } from "../math/FrustumArray.js";
+import { Vector3 } from "../math/Vector3.js";
+
+export interface MeshJSONObject extends Object3DJSONObject {
+    geometry: string;
+}
+
+export interface MeshJSON extends Object3DJSON {
+    object: MeshJSONObject;
+}
 
 /**
  * Class representing triangular {@link https://en.wikipedia.org/wiki/Polygon_mesh | polygon mesh} based objects.
@@ -24,7 +32,8 @@ import { Vector3 } from '../math/Vector3';
 export class Mesh<
     TGeometry extends BufferGeometry = BufferGeometry,
     TMaterial extends Material | Material[] = Material | Material[],
-> extends Object3D {
+    TEventMap extends Object3DEventMap = Object3DEventMap,
+> extends Object3D<TEventMap> {
     /**
      * Create a new instance of {@link Mesh}
      * @param geometry An instance of {@link THREE.BufferGeometry | BufferGeometry}. Default {@link THREE.BufferGeometry | `new THREE.BufferGeometry()`}.
@@ -43,7 +52,7 @@ export class Mesh<
      * @override
      * @defaultValue `Mesh`
      */
-    override readonly type: string | 'Mesh';
+    override readonly type: string | "Mesh";
 
     /**
      * An instance of {@link THREE.BufferGeometry | BufferGeometry} (or derived classes), defining the object's structure.
@@ -66,9 +75,16 @@ export class Mesh<
     /**
      * A dictionary of morphTargets based on the `morphTarget.name` property.
      * @defaultValue `undefined`, _but rebuilt by {@link updateMorphTargets | .updateMorphTargets()}._
-     *
      */
     morphTargetDictionary?: { [key: string]: number } | undefined;
+
+    /**
+     * The number of instances of this mesh.
+     * Can only be used with {@link WebGPURenderer}.
+     *
+     * @default 1
+     */
+    count: number;
 
     /**
      * Updates the morphTargets to have no influence on the object
@@ -83,4 +99,13 @@ export class Mesh<
      * @param target
      */
     getVertexPosition(index: number, target: Vector3): Vector3;
+
+    /**
+     * Returns `true` if this mesh intersects the given frustum.
+     * @param frustum The frustum to test.
+     * @returns Whether this mesh intersects the given frustum or not.
+     */
+    intersectsFrustum(frustum: Frustum | FrustumArray): boolean;
+
+    toJSON(meta?: JSONMeta): MeshJSON;
 }

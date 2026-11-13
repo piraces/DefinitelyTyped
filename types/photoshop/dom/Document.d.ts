@@ -1,22 +1,24 @@
+import { Channel } from "./Channel";
+import { Channels } from "./collections/Channels";
+import { ColorSamplers } from "./collections/ColorSamplers";
+import { CountItems } from "./collections/CountItems";
+import { Guides } from "./collections/Guides";
+import { HistoryStates } from "./collections/HistoryStates";
+import { LayerComps } from "./collections/LayerComps";
+import { Layers } from "./collections/Layers";
+import { PathItems } from "./collections/PathItems";
 import * as Constants from "./Constants";
 import { ExecutionContext } from "./CoreModules";
-import { Layers } from "./collections/Layers";
-import { Guides } from "./collections/Guides";
-import { ColorSamplers } from "./collections/ColorSamplers";
-import { LayerComps } from "./collections/LayerComps";
-import { CountItems } from "./collections/CountItems";
-import { HistoryStates } from "./collections/HistoryStates";
-import { PathItems } from "./collections/PathItems";
-import { Channels } from "./collections/Channels";
-import { Layer } from "./Layer";
-import { Channel } from "./Channel";
 import { HistoryState } from "./HistoryState";
-import { PixelLayerCreateOptions, TextLayerCreateOptions, GroupLayerCreateOptions } from "./types/LayerTypes";
+import { Layer } from "./Layer";
+import { BMPSaveOptions, GIFSaveOptions, JPEGSaveOptions, PhotoshopSaveOptions, PNGSaveOptions } from "./Objects";
 import { Bounds } from "./objects/Bounds";
-import { SolidColor } from "./objects/SolidColor";
 import { NoColor } from "./objects/Colors";
 import { BitmapConversionOptions, IndexedConversionOptions } from "./objects/ConversionOptions";
-import { PhotoshopSaveOptions, BMPSaveOptions, GIFSaveOptions, JPEGSaveOptions, PNGSaveOptions } from "./Objects";
+import { SolidColor } from "./objects/SolidColor";
+import { Selection } from "./Selection";
+import { CalculationsOptions } from "./types/CalculationsTypes";
+import { GroupLayerCreateOptions, PixelLayerCreateOptions, TextLayerCreateOptions } from "./types/LayerTypes";
 /** @ignore */
 export declare function validateDocument(d: Document): void;
 /**
@@ -31,19 +33,33 @@ export interface SuspendHistoryContext extends ExecutionContext {
     document: Document;
 }
 /**
+ * Options for generative upscale operations.
+ * Different models may support different options.
+ * @minVersion 25.0
+ */
+export interface GenerativeUpscaleOptions {
+    /**
+     * Scale factor for upscaling. Must be 2, 3, or 4.
+     * @defaultValue 2
+     */
+    scale?: number;
+}
+/**
  * Represents a single Photoshop document that is currently open
  * You can access instances of documents using one of these methods:
  *
  * ```javascript
+ * const {app, constants} = require('photoshop');
+ *
  * // The currently active document from the Photoshop object
- * const currentDocument = app.activeDocument
+ * const currentDocument = app.activeDocument;
  *
  * // Choose one of the open documents from the Photoshop object
- * const secondDocument = app.documents[1]
+ * const secondDocument = app.documents[1];
  *
  * // You can also create an instance of a document via a UXP File entry
- * let fileEntry = require('uxp').storage.localFileSystem.getFileForOpening()
- * const newDocument = await app.open('/project.psd')
+ * let fileEntry = require('uxp').storage.localFileSystem.getFileForOpening();
+ * const newDocument = await app.open('/project.psd');
  * ```
  */
 export declare class Document {
@@ -64,10 +80,11 @@ export declare class Document {
      */
     get saved(): boolean;
     /**
-     * The selected layers in the document.
+     * The selected layers in the document. [(26.9)](/ps_reference/changelog/#photoshop-269-july-2025)
      * @minVersion 22.5
      */
     get activeLayers(): Layers;
+    set activeLayers(layers: Layers);
     /**
      * The artboards in the document
      * @minVersion 22.5
@@ -80,7 +97,7 @@ export declare class Document {
     get name(): string;
     /**
      * A histogram containing the number of pixels at each color
-     * intensity level for the composite channel. The array contains 256
+     * intensity level for the component channel. The array contains 256
      * members.
      *
      * Valid only when [[mode]] = `DocumentMode.{RGB,CMYK,INDEXEDCOLOR}`
@@ -197,6 +214,11 @@ export declare class Document {
      */
     get height(): number;
     /**
+     * Document's zoom factor in percent.
+     * @minVersion 25.1
+     */
+    get zoom(): number;
+    /**
      * The (custom) pixel aspect ratio to use.
      * @minVersion 22.5
      */
@@ -217,6 +239,11 @@ export declare class Document {
     get colorProfileType(): Constants.ColorProfileType;
     set colorProfileType(type: Constants.ColorProfileType);
     /**
+     * The object containing the document's currently active selection
+     * @minVersion 24.2
+     */
+    readonly selection: Selection;
+    /**
      * @ignore
      */
     constructor(id: number);
@@ -224,8 +251,7 @@ export declare class Document {
      * Closes the document, showing a prompt to save
      * unsaved changes if specified.
      *
-     * @param saveDialogOptions By default, prompts a save dialog
-     *                    if there are unsaved changes.
+     * @param saveDialogOptions By default, prompts a save dialog if there are unsaved changes.
      *
      * @async
      * @minVersion 22.5
@@ -237,14 +263,14 @@ export declare class Document {
      */
     closeWithoutSaving(): void;
     /**
-     * Crops the document to given bounds
+     * Crops the document to the given bounds.
      *
      * @async
      * @minVersion 23.0
      */
     crop(bounds: Bounds, angle?: number, width?: number, height?: number): Promise<void>;
     /**
-     * Flatten all layers in the document.
+     * Flatten all layers in the document. The remaining layer will become Background.
      * @async
      * @minVersion 22.5
      */
@@ -260,13 +286,15 @@ export declare class Document {
     duplicate(name?: string, mergeLayersOnly?: boolean): Promise<Document>;
     /**
      * Merges all visible layers in the document into a single layer.
+     * In constrast to [[flatten]], `mergeVisibleLayers` will not convert the remaining layer
+     * to Background if no Background already exists.  If not Background, then the name of the
+     * merged layer will be either that of the top of the selected layers or the top layer.
      * @async
      * @minVersion 23.0
      */
     mergeVisibleLayers(): Promise<void>;
     /**
-     * Splits the document channels into separate, single-channel
-     * documents.
+     * Splits the document channels into separate, single-channel documents.
      * @async
      * @minVersion 23.0
      */
@@ -278,7 +306,7 @@ export declare class Document {
      */
     revealAll(): Promise<void>;
     /**
-     * Rasterizes all layers.
+     * Converts all layers to pixel layers.
      * @async
      * @minVersion 23.0
      */
@@ -300,7 +328,12 @@ export declare class Document {
      * @async
      * @minVersion 23.0
      */
-    convertProfile(destinationProfile: string, intent: Constants.Intent, blackPointCompensation?: boolean, dither?: boolean): Promise<void>;
+    convertProfile(
+        destinationProfile: string,
+        intent: Constants.Intent,
+        blackPointCompensation?: boolean,
+        dither?: boolean,
+    ): Promise<void>;
     /**
      * Applies trapping to a CMYK document.
      *
@@ -311,17 +344,17 @@ export declare class Document {
      */
     trap(width: number): Promise<void>;
     /**
-     * Changes the size of the canvas, but does not change image size
-     * To change the image size, see [[resizeImage]]
+     * Changes the size of the document, but does not scale the image.
+     * To scale the image size, see [[resizeImage]].
      *
      * ```javascript
      * // grow the canvas by 400px
-     * let width = await document.width
-     * let height = await document.height
-     * await document.resizeCanvas(width + 400, height + 400)
+     * const {width, height} = await app.activeDocument;
+     * await document.resizeCanvas(width + 400, height + 400);
      * ```
-     * @param width Numeric value of new width in pixels
-     * @param height Numeric value of new height in pixels
+     *
+     * @param width Numeric value of new width in pixels.
+     * @param height Numeric value of new height in pixels.
      * @param anchor Anchor point for resizing, by default will resize an equal amount on all sides.
      *
      * @async
@@ -329,26 +362,53 @@ export declare class Document {
      */
     resizeCanvas(width: number, height: number, anchor?: Constants.AnchorPosition): Promise<void>;
     /**
-     * Changes the size of the image
+     * Changes the size of the image by scaling the dimensions to meet the targeted number of pixels.
      *
      * ```javascript
      * await document.resizeImage(800, 600)
      * ```
-     * @param width Numeric value of new width in pixels
-     * @param height Numeric value of new height in pixels
-     * @param resolution Image resolution in pixels per inch (ppi)
+     * @param width Numeric value of new width in pixels.
+     * @param height Numeric value of new height in pixels.
+     * @param resolution Image resolution in pixels per inch (ppi).
      * @param resampleMethod Method used during image interpolation.
-     * @param amount Numeric value that controls the amount of noise value when using preserve details 0..100
+     * @param amount Numeric value that controls the amount of noise value when using preserve details 0..100.
      *
      * @async
      * @minVersion 23.0
      */
-    resizeImage(width?: number, height?: number, resolution?: number, resampleMethod?: Constants.ResampleMethod, amount?: number): Promise<void>;
+    resizeImage(
+        width?: number,
+        height?: number,
+        resolution?: number,
+        resampleMethod?: Constants.ResampleMethod,
+        amount?: number,
+    ): Promise<void>;
     /**
-     * Trims the transparent area around the image on the specified sides of the canvas
-     * base on trimType
+     * Applies generative upscaling to the currently selected layer(s) using AI-powered upscaling technology.
      *
-     * @param trimType
+     * ```javascript
+     * // Upscale using Firefly model with default options (2x scale)
+     * await document.generativeUpscale(constants.GenerativeUpscaleModel.FIREFLY);
+     *
+     * // Upscale using Firefly model with 4x scale
+     * await document.generativeUpscale(constants.GenerativeUpscaleModel.FIREFLY, { scale: 4 });
+     * ```
+     *
+     * @param model The generative upscale model to use.
+     * @param options Options specific to the chosen model. For Firefly: { scale?: number }.
+     * @async
+     * @minVersion 25.0
+     */
+    generativeUpscale(model: Constants.GenerativeUpscaleModel, options?: GenerativeUpscaleOptions): Promise<void>;
+    /**
+     * Trims the area around the image according to the type of pixels given.
+     * All sides of the image are targeted by default.
+     * Optionally, the sides may be individually specified for exclusion.
+     * ```javascript
+     * //  trim transparent pixels from only the bottom of the image
+     * app.activeDocument.trim(constants.TrimType.TRANSPARENT, false, false, true, false);
+     * ```
+     * @param trimType Defaults to the top left pixel color;
      * @param top
      * @param left
      * @param bottom
@@ -357,10 +417,16 @@ export declare class Document {
      * @async
      * @minVersion 23.0
      */
-    trim(trimType: Constants.TrimType, top?: boolean, left?: boolean, bottom?: boolean, right?: boolean): Promise<void>;
+    trim(
+        trimType?: Constants.TrimType, // Why doesn't this parse into default?
+        top?: boolean,
+        left?: boolean,
+        bottom?: boolean,
+        right?: boolean,
+    ): Promise<void>;
     /**
      * Rotates the image clockwise in given angle, expanding canvas if necessary. (Previously rotateCanvas)
-     * @param angle
+     * @param angle In degrees.
      *
      * @async
      * @minVersion 23.0
@@ -369,7 +435,7 @@ export declare class Document {
     /**
      * Pastes the contents of the clipboard into the document. If the optional argument is
      * set to true and a selection is active, the contents are pasted into the selection.
-     * @param intoSelection
+     * @param intoSelection Whether to use an active selection as the target for the paste.
      *
      * @async
      * @minVersion 23.0
@@ -479,8 +545,8 @@ export declare class Document {
      * await document.duplicateLayers([logo1, textLayer1], finalDoc)
      * await finalDoc.close(SaveOptions.SAVECHANGES)
      * ```
-     * @param layers
-     * @param targetDocument if specified, duplicate to a different document target.
+     * @param layers The array of layers to duplicate.
+     * @param targetDocument If specified, send the duplicates to a different document.
      *
      * @async
      * @minVersion 23.0
@@ -488,55 +554,78 @@ export declare class Document {
     duplicateLayers(layers: Layer[], targetDocument?: Document): Promise<Layer[]>;
     /**
      * Links layers together if possible, and returns a list of linked layers.
-     * @param layers array of layers to link together
+     * @param layers The array of layers to link together.
      * @returns array of successfully linked layers
      * @minVersion 23.0
      */
     linkLayers(layers: Layer[]): Layer[];
     /**
-     * Create a new layer.
+     * General form of the kind-specific methods below. See those methods for more information.
+     *
+     * Create a new layer of the given kind.  With no arguments, a pixel layer will be created.
+     * The options object will have properties specific to the kind,
+     * though all layers share a basic set of properties common to all.
+     * The override signatures below are provided as type guardrails to
+     * help ensure the options provided match the layer kind.
      *
      * ```javascript
-     * await doc.createLayer() // defaults to pixel layer
+     * await doc.createLayer(); // defaults to pixel layer
+     *
+     * await doc.createLayer(
+     *   constants.LayerKind.NORMAL, // pixel layer
+     *   { name: "myLayer",
+     *     opacity: 80,
+     *     blendMode: constants.BlendMode.COLORDODGE }
+     * );
      * ```
+     *
      * @async
      * @minVersion 23.0
      */
     createLayer(): Promise<Layer | null>;
-    /**
-     * Create a new pixel layer.
-     *
-     * ```javascript
-     * await doc.createLayer(
-     *   Constants.LayerKind.NORMAL,
-     *   { name: "myLayer", opacity: 80, blendMode: Constants.BlendMode.COLORDODGE })
-     * ```
-     * @async
-     * @param kind The kind of layer to create [[Constants.LayerKind]].
-     * @param options The options for creation, including general layer options and those specific to the layer kind.
-     * @minVersion 23.0
-     */
-    createLayer(kind: Constants.LayerKind.NORMAL, options?: PixelLayerCreateOptions): Promise<Layer | null>;
+    createLayer(kind?: Constants.LayerKind.NORMAL, options?: PixelLayerCreateOptions): Promise<Layer | null>;
     /**
      * Create a new layer group.
-     *
      * ```javascript
-     * await doc.createLayer( Constants.LayerKind.GROUP, { name: "myLayer", opacity: 80 })
+     * await doc.createLayer(
+     *   constants.LayerKind.GROUP,
+     *   { name: "myLayer", opacity: 80 }
+     * );
      * ```
      * @async
-     * @param kind The kind of layer to create [[Constants.LayerKind]].
-     * @param options The options for creation, including general layer options and those specific to the layer kind.
+     * @param kind
+     * @param options
      * @minVersion 24.1
      */
     createLayer(kind: Constants.LayerKind.GROUP, options?: GroupLayerCreateOptions): Promise<Layer | null>;
     /**
+     * Create a new text layer.
+     *
+     * ```javascript
+     * await doc.createLayer(
+     *   Constants.LayerKind.TEXT,
+     *   { name: "message", contents: "Hello World" }
+     * );
+     * ```
+     *
+     * @async
+     * @param kind
+     * @param options
+     * @minVersion 24.2
+     */
+    createLayer(kind: Constants.LayerKind.TEXT, options?: TextLayerCreateOptions): Promise<Layer | null>;
+    /**
      * Create a pixel layer using options described by [[PixelLayerCreateOptions]].
      *
      * ```javascript
-     * await doc.createPixelLayer()
-     * await doc.createPixelLayer({ name: "myLayer", opacity: 80, fillNeutral: true })
+     * await doc.createPixelLayer({
+     *   name: "myLayer",
+     *   opacity: 80,
+     *   fillNeutral: true
+     * });
      * ```
      * @async
+     * @param options The options for creation, including general layer options and those specific to the layer kind.
      * @minVersion 24.1
      */
     createPixelLayer(options?: PixelLayerCreateOptions): Promise<Layer | null>;
@@ -545,7 +634,11 @@ export declare class Document {
      *
      * ```javascript
      * await doc.createTextLayer()
-     * await doc.createTextLayer({ name: "myTextLayer", contents: "Hello, World!", fontSize: 32 })
+     * await doc.createTextLayer({
+     *   name: "myTextLayer",
+     *   contents: "Hello, World!",
+     *   fontSize: 32
+     * });
      * ```
      * @async
      * @minVersion 24.2
@@ -556,9 +649,19 @@ export declare class Document {
      *
      * ```javascript
      * const myEmptyGroup = await doc.createLayerGroup()
-     * const myGroup = await doc.createLayerGroup({ name: "myLayer", opacity: 80, blendMode: "colorDodge" })
-     * const nonEmptyGroup = await doc.createLayerGroup({ name: "group", fromLayers: [layer1, layer2] })
-     * const selectedGroup = await doc.createLayerGroup({ name: "group", fromLayers: doc.activeLayers })
+     * const myGroup = await doc.createLayerGroup({
+     *   name: "myLayer",
+     *   opacity: 80,
+     *   blendMode: "colorDodge"
+     * });
+     * const nonEmptyGroup = await doc.createLayerGroup({
+     *   name: "group",
+     *   fromLayers: [layer1, layer2]
+     * });
+     * const selectedGroup = await doc.createLayerGroup({
+     *   name: "group",
+     *   fromLayers: doc.activeLayers
+     * });
      * ```
      * @async
      * @minVersion 23.0
@@ -569,7 +672,9 @@ export declare class Document {
      *
      * ```javascript
      * const layers = doc.layers
-     * const group = await doc.groupLayers([layers[1], layers[2], layers[4]])
+     * const group = await doc.groupLayers(
+     *   [ layers[1], layers[2], layers[4] ]
+     * );
      * ```
      * @async
      * @minVersion 23.0
@@ -586,12 +691,12 @@ export declare class Document {
      * The callback is passed in a SuspendHistoryContext object,
      * which contains the current document in a variable `document`.
      *
-     * For more info and advanced context, see [`core.executeAsModal`](../media/executeAsModal)
-     * API, for which this API is a simple wrapper for.
+     * For more info and advanced context, see [`core.executeAsModal`](../../media/executeasmodal)
+     * API, for which `suspendHistory` is a simple wrapper.
      *
      * ```javascript
-     *    require("photoshop").app.activeDocument.suspendHistory(async (context) => {
-     *        // context.document is the `app.activeDocument`
+     *    app.activeDocument.suspendHistory(async (context) => {
+     *        // context.document below is, in this case, `app.activeDocument`
      *        context.document.activeLayers[0].name = "Changed name";
      *    });
      * ```
@@ -624,17 +729,60 @@ export declare class Document {
         y: number;
     }): Promise<NoColor | SolidColor>;
     /**
+     * The Calculations command lets you blend two individual channels from one or more source images. You can then
+     * apply the results to a new image or to a new channel or selection in the active image.
+     *
+     * Performs Image > Calculations on the document. See the [[CalculationsOptions]]
+     * object for more info and examples.
+     *
+     * ```javascript
+     * const doc = app.activeDocument;
+     * const options = {
+     *     source1: {
+     *         document: doc,
+     *         layer: doc.layers[0],
+     *         channel: constants.CalculationsChannel.GRAY
+     *         invert: true
+     *     },
+     *     source2: {
+     *         document: doc,
+     *         layer: constants.CalculationsLayer.MERGED,
+     *         channel: doc.channels[2]
+     *     },
+     *     blending: constants.CalculationsBlendMode.DARKEN,
+     *     opacity: 50,
+     *     result: constants.CalculationsResult.NEWCHANNEL
+     * };
+     * doc.calculations(options);
+     *
+     * ```
+     *
+     * Known issue: currently calculations requires having exactly one unlocked pixel layer being selected otherwise
+     * it won't work. In future there should not be any layer requirements since this cannot output into layer.
+     * @param calculationsOptions Option object for the calculations.
+     * @async
+     * @minVersion 24.5
+     */
+    calculations(calculationsOptions: CalculationsOptions): Promise<Document | Channel | void>;
+    /**
      * All channels in the document.
      * @minVersion 23.0
      */
     get channels(): Channels;
     /**
-     * Composite channels in the document.
+     * Component channels in the document. [(24.6)](/ps_reference/changelog#246-bug-fixes)
+     * @minVersion 24.5
+     */
+    get componentChannels(): Channel[];
+    /**
+     * Deprecated since these channels are component not composite.
+     * Use `compositeChannels` above.
+     * @deprecated
      * @minVersion 23.0
      */
     get compositeChannels(): Channel[];
     /**
-     * Currently active channels of the document.
+     * Currently active channels of the document. [(24.6)](/ps_reference/changelog#246-bug-fixes)
      * @minVersion 23.0
      */
     get activeChannels(): Channel[];

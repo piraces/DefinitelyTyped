@@ -1,20 +1,14 @@
-// Type definitions for non-npm package poool-access 5.10
-// Project: https://poool.dev/docs/access/javascript
-// Definitions by: Maxime Da Silva <https://github.com/maximedasilva>
-//                 Ugo Stephant <https://github.com/dackmin>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
-
 declare global {
-    const Access: Poool.Access;
-    const Audit: Poool.Audit;
+    var Access: Poool.Access;
+    var Audit: Poool.Audit;
     /**
      * Use PooolAccess just if you have done `Access.noConflict()` before
      */
-    const PooolAccess: Poool.Access;
+    var PooolAccess: Poool.Access;
     /**
      * Use PooolAudit just if you have done `Audit.noConflict()` before
      */
-    const PooolAudit: Poool.Audit;
+    var PooolAudit: Poool.Audit;
     interface Window {
         Access: Poool.Access;
         Audit: Poool.Audit;
@@ -38,15 +32,15 @@ export namespace Poool {
          *
          * default: `portrait`
          *
-         * More Infos: https://poool.dev/docs/access/javascript/access/appearances
+         * More Infos: https://poool.dev/docs/access/javascript/appearances
          */
-        layout?: 'portrait' | 'landscape';
+        layout?: "portrait" | "landscape";
         /**
          * URL to your media's logo. `.png`, `.jpg` or `.svg` format, `140px` min height, `200kb` max.
          *
          * default: null
          *
-         *  More infos: https://poool.dev/docs/access/javascript/access/appearances
+         *  More infos: https://poool.dev/docs/access/javascript/appearances
          */
         brand_logo?: string;
         /**
@@ -54,7 +48,7 @@ export namespace Poool {
          *
          * default: null
          *
-         *  More infos: https://poool.dev/docs/access/javascript/access/appearances
+         *  More infos: https://poool.dev/docs/access/javascript/appearances
          */
         brand_cover?: string;
         /**
@@ -62,7 +56,7 @@ export namespace Poool {
          *
          * default: '#1896B4'
          *
-         *  More infos: https://poool.dev/docs/access/javascript/access/appearances
+         *  More infos: https://poool.dev/docs/access/javascript/appearances
          */
         button_color?: string;
         /**
@@ -70,7 +64,7 @@ export namespace Poool {
          *
          * default: '#0E6176'
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/appearances
+         * More infos: https://poool.dev/docs/access/javascript/appearances
          */
         button_hover_color?: string;
         /**
@@ -78,7 +72,7 @@ export namespace Poool {
          *
          * Default: '#4A90E2'
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/appearances
+         * More infos: https://poool.dev/docs/access/javascript/appearances
          */
         skin_color?: string;
         /**
@@ -86,7 +80,7 @@ export namespace Poool {
          *
          * Default: '#1896B4'
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/appearances
+         * More infos: https://poool.dev/docs/access/javascript/appearances
          */
         premium_color?: string;
         /**
@@ -94,7 +88,7 @@ export namespace Poool {
          *
          * Default: null
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/appearances
+         * More infos: https://poool.dev/docs/access/javascript/appearances
          */
         custom_css?: string;
     }
@@ -105,7 +99,7 @@ export namespace Poool {
          *
          * default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         debug?: boolean;
         /**
@@ -124,15 +118,15 @@ export namespace Poool {
          *
          * default: `'hide'`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
-        mode?: 'hide' | 'excerpt' | 'custom';
+        mode?: "hide" | "excerpt" | "custom";
         /**
          * Percentage of text you want to be hidden/stripped.
          *
          * default: `80`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         percent?: number;
         /**
@@ -140,7 +134,7 @@ export namespace Poool {
          *
          * default: `[data-poool]`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         post_container?: string;
         /**
@@ -148,13 +142,13 @@ export namespace Poool {
          *
          * Default: `'#poool-widget'`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         widget_container?: string;
         /**
          * Used to set your media's display name for some widgets. This value may be overridden by Dashboard configuration.
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         app_name?: string;
         /**
@@ -162,23 +156,23 @@ export namespace Poool {
          *
          * Default: `'auto'`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         force_widget?:
-            | 'auto'
-            | 'hidden'
-            | 'disabled'
-            | 'none'
-            | 'video'
-            | 'newsletter'
-            | 'subscription'
-            | 'gift'
-            | 'question'
-            | 'unlock'
-            | 'link'
-            | 'pass'
-            | 'unlock'
-            | 'invisible';
+            | "auto"
+            | "hidden"
+            | "disabled"
+            | "none"
+            | "video"
+            | "newsletter"
+            | "subscription"
+            | "gift"
+            | "question"
+            | "unlock"
+            | "link"
+            | "pass"
+            | "unlock"
+            | "invisible";
         /**
          * Your subscription page URL. The subscription widget will redirect the reader to this when they decide to subscribe.
          * - `{return_url}` variable can be used to get the current URL.
@@ -186,7 +180,7 @@ export namespace Poool {
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         subscription_url?: string;
         /**
@@ -194,7 +188,7 @@ export namespace Poool {
          *
          * Default: true
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         subscription_button_enabled?: boolean;
         /**
@@ -202,7 +196,7 @@ export namespace Poool {
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         newsletter_name?: string;
         /**
@@ -212,7 +206,7 @@ export namespace Poool {
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         newsletter_id?: string;
         /**
@@ -222,7 +216,7 @@ export namespace Poool {
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         login_url?: string;
         /**
@@ -230,7 +224,7 @@ export namespace Poool {
          *
          * Default: `true`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         login_button_enabled?: boolean;
         /**
@@ -238,7 +232,7 @@ export namespace Poool {
          *
          * Default: `true`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         signature_enabled?: boolean;
         /**
@@ -248,7 +242,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         user_is_premium?: boolean;
         /**
@@ -256,15 +250,15 @@ export namespace Poool {
          *
          * Default: `'vast'`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
-        video_client?: 'vast' | 'googima';
+        video_client?: "vast" | "googima";
         /**
          * Shows/hides the popover displayed when the paywall is not already inside the viewport.
          *
          * Default: `true`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         popover_enabled?: boolean;
         /**
@@ -272,7 +266,7 @@ export namespace Poool {
          *
          * Default: `true`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         alternative_enabled?: boolean;
         /**
@@ -280,15 +274,15 @@ export namespace Poool {
          *
          * Default: `'none'`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
-        alternative_widget?: 'none' | 'video' | 'gift' | 'question' | 'subscription' | 'newsletter';
+        alternative_widget?: "none" | "video" | "gift" | "question" | "subscription" | "newsletter";
         /**
          * URL needed to display video ads inside the video widget on the desktop.
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         vast?: string;
         /**
@@ -296,7 +290,7 @@ export namespace Poool {
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         mobile_vast?: string;
         /**
@@ -306,15 +300,15 @@ export namespace Poool {
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
-        context?: string;
+        context?: string | string[];
         /**
          * Used to allocate a reader to a custom group previously created in Poool's Dashboard.
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         custom_segment?: string;
         /**
@@ -322,7 +316,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         cookies_enabled?: boolean;
         /**
@@ -330,9 +324,9 @@ export namespace Poool {
          *
          * Default: `'subscription'`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
-        consent_rejection_widget?: 'invisible' | 'unlock' | 'gift' | 'subscription';
+        consent_rejection_widget?: "invisible" | "unlock" | "gift" | "subscription";
         /**
          * Link URL shown inside widgets that require the collection of user information.
          * - `{return_url}` variable can be used to get the current URL.
@@ -340,7 +334,7 @@ export namespace Poool {
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         data_policy_url?: string;
         /**
@@ -348,9 +342,9 @@ export namespace Poool {
          *
          * Default: `'fr'`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
-        locale?: 'fr' | 'en';
+        locale?: "fr" | "en";
         /**
          * Popover display timeout (in milliseconds).
          *
@@ -358,7 +352,7 @@ export namespace Poool {
          *
          * Default: `5000`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         popover_timeout?: number;
         /**
@@ -372,7 +366,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         disable_content_height_calculation?: boolean;
         /**
@@ -383,7 +377,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         wait_for_dom_load?: boolean;
         /**
@@ -391,7 +385,7 @@ export namespace Poool {
          *
          * Default: `2000`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         dom_load_timeout?: number;
         /**
@@ -400,7 +394,7 @@ export namespace Poool {
          *
          * Default: `10000`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         paywall_load_timeout?: number;
         /**
@@ -411,7 +405,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         track_original_action?: boolean;
         /**
@@ -420,7 +414,7 @@ export namespace Poool {
          *
          * Default: `5000`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         components_load_timeout?: number;
         /**
@@ -430,7 +424,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         ati_tracking_enabled?: boolean;
         /**
@@ -439,7 +433,7 @@ export namespace Poool {
          *
          * Default: `2000`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         ati_load_timeout?: number;
         /**
@@ -448,7 +442,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         facebook_login_enabled?: boolean;
         /**
@@ -457,7 +451,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         google_login_enabled?: boolean;
         /**
@@ -467,7 +461,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         ati_auto_tracking_enabled?: boolean;
         /**
@@ -479,15 +473,15 @@ export namespace Poool {
          *
          * Default: `'default'`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
-        ati_tracking_method?: 'default' | 'events';
+        ati_tracking_method?: "default" | "events";
         /**
          * Enable/disable automatic Piano tracking (Piano SDK integration required) for particular events.
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         piano_auto_tracking_enabled?: boolean;
         /**
@@ -497,7 +491,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         ga_auto_tracking_enabled?: boolean;
         /**
@@ -507,7 +501,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         gtm_auto_tracking_enabled?: boolean;
         /**
@@ -517,7 +511,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         gtag_auto_tracking_enabled?: boolean;
         /**
@@ -528,7 +522,7 @@ export namespace Poool {
          *
          * Default: `false`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         auto_tracking_spec_v2?: boolean;
         /**
@@ -538,7 +532,7 @@ export namespace Poool {
          *
          * Default: `{}`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         ati_tag_options?: { [key: string]: any };
         /**
@@ -546,7 +540,7 @@ export namespace Poool {
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         custom_reader_id?: string;
         /**
@@ -554,7 +548,7 @@ export namespace Poool {
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         stripe_public_key?: string;
         /**
@@ -564,7 +558,7 @@ export namespace Poool {
          *
          * Default: `true`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         popover_auto_hide?: boolean;
         /**
@@ -575,7 +569,7 @@ export namespace Poool {
          *
          * Default: `true`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         custom_return_url?: string;
         /**
@@ -583,7 +577,7 @@ export namespace Poool {
          *
          * Default: `null`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         cookies_domain?: string;
         /**
@@ -595,18 +589,17 @@ export namespace Poool {
          *
          * Default: `'subscription'`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
-
-        default_widget?: 'invisible' | 'unlock' | 'gift' | 'subscription';
+        default_widget?: "invisible" | "unlock" | "gift" | "subscription";
         /**
-         * Used to defined a fallback widget in case of error on advertising widgets (`video`, `viewpay`).
+         * Used to defined a fallback widget in case of error on advertising widgets (`video`).
          *
          * Prefer to configure this option in your dashboard (widget edition), especially if your fallback widget requires data (eg: `question` or `form` widgets).
          *
          * Default: `'subscription'`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         fallback_widget?: string;
         /**
@@ -616,7 +609,7 @@ export namespace Poool {
          *
          * Default: `2000`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         audit_load_timeout?: number;
         /**
@@ -624,7 +617,7 @@ export namespace Poool {
          *
          * Default: `true`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         beacons?: boolean;
         /**
@@ -632,31 +625,133 @@ export namespace Poool {
          *
          * Default: `'/'`
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         cookies_path?: string;
+        /**
+         * Avoid waiting for Audit to load before displaying the paywall. If set to true, you must manually initialize the paywall after Audit's identityAvailable event has been triggered.
+         *
+         * Default: `false`
+         *
+         * More infos: https://www.poool.dev/docs/access/javascript/audit/installation
+         */
+        skip_audit_loader?: boolean;
+        /**
+         * Your link URL, link_url will be used on Link action
+         *
+         * Default: `null`
+         *
+         * More infos: https://poool.dev/docs/access/javascript/configuration
+         */
+        link_url?: string;
+        /**
+         * Id of the Mailchimp list to which the user's email will be added.
+         * This feature requires activation of the Mailchimp third-party integration in the Dashboard.
+         *
+         * Default: `null`
+         *
+         * More infos: https://poool.dev/docs/access/javascript/configuration
+         */
+        mailchimp_list_id?: string;
+        /**
+         * Custom Id of the pass used in Discovery pass action.
+         *
+         * Default: `null`
+         *
+         * More infos: https://poool.dev/docs/access/javascript/configuration
+         */
+        pass_id?: string;
+        /**
+         * Custom name of the pass used in Discovery pass action.
+         *
+         * Default: `null`
+         *
+         * More infos: https://poool.dev/docs/access/javascript/configuration
+         */
+        pass_name?: string;
+        /**
+         * Enable/disable the Sophi.io third-party integration.
+         *
+         * Default: `false`
+         *
+         * More infos: https://poool.dev/docs/access/javascript/configuration
+         */
+        sophi_enabled?: boolean;
+        /**
+         * Page content ID that will be sent to Sophi.io.
+         *
+         * Default: `null`
+         *
+         * More infos: https://poool.dev/docs/access/javascript/configuration
+         */
+        sophi_content_id?: string;
+        /**
+         * Page section that will be sent to Sophi.io.
+         *
+         * Default: `null`
+         *
+         * More infos: https://poool.dev/docs/access/javascript/configuration
+         */
+        sophi_page_section?: string;
+        /**
+         * Visitor type that will be sent to Sophi.io.
+         *
+         * Default: `null`
+         *
+         * More infos: https://poool.dev/docs/access/javascript/configuration
+         */
+        sophi_visitor_type?: string;
+        /**
+         * ⚠️ Legacy render is currently the default render used by Access's SDK and will only get security fixes from now on. The new render is more performant and benefits from new and future features.
+         *
+         * Default: `"legacy"`
+         *
+         * More infos: https://poool.dev/docs/access/javascript/configuration
+         */
+        render?: "next" | "legacy";
     }
 
     type EventsList =
-        | 'identityAvailable'
-        | 'lock'
-        | 'ready'
-        | 'paywallSeen'
-        | 'release'
-        | 'register'
-        | 'subscribeClick'
-        | 'loginClick'
-        | 'discoveryLinkClick'
-        | 'alternativeClick'
-        | 'error'
-        | 'outdatedBrowser'
-        | 'dataPolicyClick'
-        | 'formSubmit'
-        | 'facebookLoginClick'
-        | 'googleLoginClick'
-        | 'answer'
-        | 'consent'
-        | 'customButtonClick';
+        | "identityAvailable"
+        | "onIdentityAvailable"
+        | "lock"
+        | "onLock"
+        | "ready"
+        | "onReady"
+        | "paywallSeen"
+        | "onPaywallSeen"
+        | "release"
+        | "onRelease"
+        | "register"
+        | "onRegister"
+        | "subscribeClick"
+        | "onSubscribeClick"
+        | "loginClick"
+        | "onLoginClick"
+        | "discoveryLinkClick"
+        | "onDiscoveryLinkClick"
+        | "alternativeClick"
+        | "onAlternativeClick"
+        | "error"
+        | "onError"
+        | "outdatedBrowser"
+        | "onOutdatedBrowser"
+        | "dataPolicyClick"
+        | "onDataPolicyClick"
+        | "formSubmit"
+        | "onFormSubmit"
+        | "facebookLoginClick"
+        | "onFacebookLoginClick"
+        | "googleLoginClick"
+        | "onGoogleLoginClick"
+        | "answer"
+        | "onAnswer"
+        | "consent"
+        | "onConsent"
+        | "customButtonClick"
+        | "onCustomButtonClick"
+        | "externalLinkClick"
+        | "onExternalLinkClick";
 
     interface AccessConfig {
         /**
@@ -667,7 +762,7 @@ export namespace Poool {
          * @param config - the configuration object
          * @param [readonly=false] - if true, the configuration will be read-only and cannot be overridden by the Dashboard
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         (config: AccessConfigOptions, readonly?: boolean): AccessFactory;
         /**
@@ -679,7 +774,7 @@ export namespace Poool {
          * @param optionValue The configuration option value
          * @param [readonly=false] - if true, the configuration will be read-only and cannot be overridden by the Dashboard
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/configuration
+         * More infos: https://poool.dev/docs/access/javascript/configuration
          */
         (optionName: string, optionValue: any, readonly?: boolean): AccessFactory;
     }
@@ -698,7 +793,7 @@ export namespace Poool {
          * @param [readonly=false] - if true, the configuration will be read-only and cannot be overridden by the Dashboard
          * @param [locale] - the locale to use
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/texts
+         * More infos: https://poool.dev/docs/access/javascript/texts
          */
         (keyName: string, value: string, readonly?: boolean, locale?: string): AccessFactory;
         /**
@@ -713,7 +808,7 @@ export namespace Poool {
          * @param [readonly=false] - if true, the configuration will be read-only and cannot be overridden by the Dashboard
          * @param [locale] - the locale to use
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/texts
+         * More infos: https://poool.dev/docs/access/javascript/texts
          */
         (texts: { [key: string]: string }, readonly?: boolean, locale?: string): AccessFactory;
     }
@@ -730,7 +825,7 @@ export namespace Poool {
          * @param value - the style value
          * @param [readonly=false] - if true, the configuration will be read-only and cannot be overridden by the Dashboard
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/appearances
+         * More infos: https://poool.dev/docs/access/javascript/appearances
          */
         (keyName: string, value: string, readonly?: boolean): AccessFactory;
         /**
@@ -743,7 +838,7 @@ export namespace Poool {
          * @param styles - the styles object
          * @param [readonly=false] - if true, the configuration will be read-only and cannot be overridden by the Dashboard
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/appearances
+         * More infos: https://poool.dev/docs/access/javascript/appearances
          */
         (styles: styles, readonly?: boolean): AccessFactory;
     }
@@ -757,9 +852,9 @@ export namespace Poool {
          * @param keyName - the variable key name
          * @param value - the variable value
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/variables
+         * More infos: https://poool.dev/docs/access/javascript/variables
          */
-        (keyName: string, value: string): AccessFactory;
+        (keyName: string, value: string | number | boolean): AccessFactory;
         /**
          * Some texts inside the paywall benefit from predefined & automatically integrated variables, such as `{app_name}`.
          *
@@ -767,9 +862,9 @@ export namespace Poool {
          *
          * @param variables - the variables object
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/variables
+         * More infos: https://poool.dev/docs/access/javascript/variables
          */
-        (variables: { [key: string]: string }): AccessFactory;
+        (variables: { [key: string]: string | number | boolean }): AccessFactory;
     }
 
     interface AuditConfigOptions {
@@ -806,7 +901,7 @@ export namespace Poool {
          *
          * More infos: https://poool.dev/docs/access/javascript/audit/configuration
          */
-        context?: string;
+        context?: string | string[];
         /**
          * Used to allocate a reader to a custom group previously created in Poool's Dashboard.
          *
@@ -854,7 +949,7 @@ export namespace Poool {
          *
          * More infos: https://poool.dev/docs/access/javascript/audit/configuration
          */
-        ati_tracking_method?: 'default' | 'events';
+        ati_tracking_method?: "default" | "events";
         /**
          * Enable/disable automatic Piano tracking (Piano SDK integration required) for particular events.
          *
@@ -941,7 +1036,6 @@ export namespace Poool {
          * @param [readonly=false] - Whether or not the configuration should be read-only.
          * @returns The audit instance.
          *
-         *
          * More infos: https://poool.dev/docs/access/javascript/audit/configuration
          */
         (config: AuditConfigOptions, readonly?: boolean): Audit;
@@ -968,13 +1062,13 @@ export namespace Poool {
          * @param config - the paywall configuration object
          * @returns The Access factory instance.
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/methods
+         * More infos: https://poool.dev/docs/access/javascript/methods
          */
         createPaywall(config: {
-            target?: string;
+            target?: string | HTMLElement;
             content?: string | HTMLElement;
-            pageType?: 'premium' | 'free';
-            mode?: 'hide' | 'excerpt' | 'custom';
+            pageType?: "premium" | "free" | "page";
+            mode?: "hide" | "excerpt" | "custom";
             percent?: number;
         }): AccessFactory;
         texts: AccessTexts;
@@ -987,7 +1081,7 @@ export namespace Poool {
          * @param callback - the callback function
          * @returns The Access factory instance.
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/methods
+         * More infos: https://poool.dev/docs/access/javascript/methods
          */
         on(event: EventsList, callback: (...props: any) => any): AccessFactory;
         /**
@@ -997,31 +1091,34 @@ export namespace Poool {
          * @param callback - the callback function
          * @returns The Access factory instance.
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/methods
+         * More infos: https://poool.dev/docs/access/javascript/methods
          */
         once(event: EventsList, callback: (...props: any) => any): AccessFactory;
         /**
          * Allows to remove an event callback previously set with {@link on} or {@link once}.
          *
-         *
          * @param event - the event name
          * @param callback - the callback function
          * @returns The Access factory instance.
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/methods
+         * More infos: https://poool.dev/docs/access/javascript/methods
          */
         off(event: EventsList, callback: (...props: any) => any): AccessFactory;
         /**
          * Destroys the current paywall.
          *
-         * @returns null
+         * @returns a Promise that resolves when the paywall has been destroyed.
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/methods
+         * More infos: https://poool.dev/docs/access/javascript/methods
          */
-        destroy(): null;
+        destroy(): Promise<void>;
     }
 
     interface Audit {
+        /**
+         * Whether the Element is a Poool instance, or not
+         */
+        isPoool: boolean;
         /**
          * Initializes Audit using your app ID.
          *
@@ -1045,21 +1142,21 @@ export namespace Poool {
          * @param eventName - the event name
          * @param data - the event datas
          * @param options - the event options
-         * @returns the Audit instance
+         * @returns A Promise that fullfills with a boolean value indicating if the event has been correctly sent or not.
          *
          * More infos: https://poool.dev/docs/access/javascript/audit/methods
          */
         sendEvent(
-            eventName: 'page-view',
+            eventName: "page-view",
             data?: {
-                type?: 'premium' | 'free' | 'page';
+                type?: "premium" | "free" | "page";
                 [key: string]: any;
             },
             options?: {
                 beacons?: boolean;
                 [key: string]: any;
             },
-        ): Audit;
+        ): Promise<boolean>;
         config: AuditConfig;
         /**
          * Allows to set a callback to be called when a specific event is triggered
@@ -1084,7 +1181,6 @@ export namespace Poool {
         /**
          * Allows to remove an event callback previously set with {@link on} or {@link once}.
          *
-         *
          * @param event - the event name
          * @param callback - the callback function
          * @returns The Audit instance.
@@ -1096,12 +1192,16 @@ export namespace Poool {
 
     interface Access {
         /**
+         * Whether the Element is a Poool instance, or not
+         */
+        isPoool: boolean;
+        /**
          * Creates a new Access instance (required to display paywalls) using your app ID.
          *
          * @param key - Your poool app ID
          * @returns The access factory instance.
          *
-         *  More infos: https://poool.dev/docs/access/javascript/access/methods
+         *  More infos: https://poool.dev/docs/access/javascript/methods
          */
         init(key: string): AccessFactory;
         /**
@@ -1109,7 +1209,7 @@ export namespace Poool {
          *
          * @returns the Access instance
          *
-         * More infos: https://poool.dev/docs/access/javascript/access/methods
+         * More infos: https://poool.dev/docs/access/javascript/methods
          */
         noConflict(): Access;
     }

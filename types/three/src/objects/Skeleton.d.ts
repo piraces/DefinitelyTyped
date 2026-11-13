@@ -1,6 +1,13 @@
-import { Bone } from './Bone';
-import { Matrix4 } from './../math/Matrix4';
-import { DataTexture } from './../textures/DataTexture';
+import { Matrix4, Matrix4Tuple } from "../math/Matrix4.js";
+import { DataTexture } from "../textures/DataTexture.js";
+import { Bone } from "./Bone.js";
+
+export interface SkeletonJSON {
+    metadata: { version: number; type: string; generator: string };
+    bones: string[];
+    boneInverses: Matrix4Tuple[];
+    uuid: string;
+}
 
 /**
  * Use an array of {@link Bone | bones} to create a {@link Skeleton} that can be used by a {@link THREE.SkinnedMesh | SkinnedMesh}.
@@ -32,7 +39,7 @@ export class Skeleton {
      * @param bones The array of {@link THREE.Bone | bones}. Default `[]`.
      * @param boneInverses An array of {@link THREE.Matrix4 | Matrix4s}. Default `[]`.
      */
-    constructor(bones: Bone[], boneInverses?: Matrix4[]);
+    constructor(bones?: Bone[], boneInverses?: Matrix4[]);
 
     /**
      * {@link http://en.wikipedia.org/wiki/Universally_unique_identifier | UUID} of this object instance.
@@ -54,18 +61,26 @@ export class Skeleton {
     /**
      * The array buffer holding the bone data when using a vertex texture.
      */
-    boneMatrices: Float32Array;
+    boneMatrices: Float32Array | null;
+
+    /**
+     * An array buffer holding the bone data of the previous frame.
+     * Required for computing velocity.
+     * @default null
+     */
+    previousBoneMatrices: Float32Array | null;
 
     /**
      * The {@link THREE.DataTexture | DataTexture} holding the bone data when using a vertex texture.
      */
-    boneTexture: null | DataTexture;
+    boneTexture: DataTexture | null;
 
     /**
-     * The size of the {@link boneTexture | .boneTexture}.
-     * @remarks Expects a `Integer`
+     * A texture holding the bone data of the previous frame.
+     * Required for computing velocity.
+     * @default null
      */
-    boneTextureSize: number;
+    previousBoneTexture: DataTexture | null;
 
     frame: number;
 
@@ -112,4 +127,8 @@ export class Skeleton {
      * Call this method whenever this instance is no longer used in your app.
      */
     dispose(): void;
+
+    toJSON(): SkeletonJSON;
+
+    fromJSON(json: SkeletonJSON, bones: Record<string, Bone>): void;
 }

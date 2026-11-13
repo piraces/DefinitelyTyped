@@ -1,9 +1,17 @@
-import { Vector2 } from './../math/Vector2';
-import { Raycaster } from './../core/Raycaster';
-import { Object3D } from './../core/Object3D';
-import { Intersection } from '../core/Raycaster';
-import { SpriteMaterial } from '../materials/Materials';
-import { BufferGeometry } from '../core/BufferGeometry';
+import { BufferGeometry } from "../core/BufferGeometry.js";
+import { JSONMeta, Object3D, Object3DEventMap, Object3DJSON, Object3DJSONObject } from "../core/Object3D.js";
+import { SpriteMaterial } from "../materials/Materials.js";
+import { Frustum } from "../math/Frustum.js";
+import { FrustumArray } from "../math/FrustumArray.js";
+import { Vector2, Vector2Tuple } from "../math/Vector2.js";
+
+export interface SpriteJSONObject extends Object3DJSONObject {
+    center: Vector2Tuple;
+}
+
+export interface SpriteJSON extends Object3DJSON {
+    object: SpriteJSONObject;
+}
 
 /**
  * A {@link Sprite} is a plane that always faces towards the camera, generally with a partially transparent texture applied.
@@ -20,7 +28,7 @@ import { BufferGeometry } from '../core/BufferGeometry';
  * @see {@link https://threejs.org/docs/index.html#api/en/objects/Sprite | Official Documentation}
  * @see {@link https://github.com/mrdoob/three.js/blob/master/src/objects/Sprite.js | Source}
  */
-export class Sprite extends Object3D {
+export class Sprite<TEventMap extends Object3DEventMap = Object3DEventMap> extends Object3D<TEventMap> {
     /**
      * Creates a new Sprite.
      * @param material An instance of {@link THREE.SpriteMaterial | SpriteMaterial}. Default {@link THREE.SpriteMaterial | `new SpriteMaterial()`}, _with white color_.
@@ -38,7 +46,7 @@ export class Sprite extends Object3D {
      * @override
      * @defaultValue `Sprite`
      */
-    override readonly type: string | 'Sprite';
+    override readonly type: string | "Sprite";
 
     /**
      * Whether the object gets rendered into shadow map.
@@ -64,4 +72,21 @@ export class Sprite extends Object3D {
      * @defaultValue {@link THREE.Vector2 | `new Vector2(0.5, 0.5)`}.
      */
     center: Vector2;
+
+    /**
+     * The number of instances of this sprite.
+     * Can only be used with {@link WebGPURenderer}.
+     *
+     * @default 1
+     */
+    count: number;
+
+    /**
+     * Returns `true` if this sprite intersects the given frustum.
+     * @param frustum The frustum to test.
+     * @returns Whether this sprite intersects the given frustum or not.
+     */
+    intersectsFrustum(frustum: Frustum | FrustumArray): boolean;
+
+    toJSON(meta?: JSONMeta): SpriteJSON;
 }

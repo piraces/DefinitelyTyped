@@ -1,8 +1,8 @@
-import { Material } from './../materials/Material';
-import { Raycaster } from './../core/Raycaster';
-import { Object3D } from './../core/Object3D';
-import { BufferGeometry } from '../core/BufferGeometry';
-import { Intersection } from '../core/Raycaster';
+import { BufferGeometry } from "../core/BufferGeometry.js";
+import { Object3D, Object3DEventMap } from "../core/Object3D.js";
+import { Material } from "../materials/Material.js";
+import { Frustum } from "../math/Frustum.js";
+import { FrustumArray } from "../math/FrustumArray.js";
 
 /**
  * A continuous line.
@@ -29,7 +29,8 @@ import { Intersection } from '../core/Raycaster';
 export class Line<
     TGeometry extends BufferGeometry = BufferGeometry,
     TMaterial extends Material | Material[] = Material | Material[],
-> extends Object3D {
+    TEventMap extends Object3DEventMap = Object3DEventMap,
+> extends Object3D<TEventMap> {
     /**
      * Create a new instance of {@link Line}
      * @param geometry Vertices representing the {@link Line} segment(s). Default {@link THREE.BufferGeometry | `new THREE.BufferGeometry()`}.
@@ -48,7 +49,7 @@ export class Line<
      * @override
      * @defaultValue `Line`
      */
-    override readonly type: string | 'Line';
+    override readonly type: string | "Line";
 
     /**
      * Vertices representing the {@link Line} segment(s).
@@ -85,4 +86,11 @@ export class Line<
      * Resets the {@link morphTargetInfluences | .morphTargetInfluences} and {@link morphTargetDictionary | .morphTargetDictionary} properties.
      */
     updateMorphTargets(): void;
+
+    /**
+     * Returns `true` if this line intersects the given frustum.
+     * @param frustum The frustum to test.
+     * @returns Whether this line intersects the given frustum or not.
+     */
+    intersectsFrustum(frustum: Frustum | FrustumArray): boolean;
 }
